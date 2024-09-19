@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/search_container"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+
+    android:background="@drawable/rounded_background"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <EditText
+        android:id="@+id/search_input"
+        android:layout_width="0dp"
+        android:layout_height="33dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:hint="Buscar Producto"
+        android:padding="8dp" />
+
+    <ImageView
+        android:id="@+id/search_icon"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginTop="2dp"
+        android:contentDescription="Buscar"
+        android:src="@drawable/ic_search" />
+</LinearLayout>

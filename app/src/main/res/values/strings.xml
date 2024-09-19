@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Paper Geometry</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+    <string name="character_image">Character Image</string>
+    <string name="nav_header_image_description">Profile Image</string>
+    <string name="cart_button">Carrito de compras</string>
+</resources>

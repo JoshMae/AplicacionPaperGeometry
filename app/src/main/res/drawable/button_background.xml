@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color del fondo del botón -->
+    <solid android:color="#FFFFFF" />
+
+    <!-- Color del borde del botón -->
+    <stroke
+        android:width="10dp"
+        android:color="#00BFFF" /> <!-- Celeste -->
+
+    <!-- Esquinas del botón (puedes ajustar el radio si lo deseas) -->
+    <corners android:radius="0dp" />
+</shape>
