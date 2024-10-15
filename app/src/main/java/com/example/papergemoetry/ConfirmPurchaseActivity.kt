@@ -27,6 +27,8 @@ import retrofit2.http.POST
 import java.util.concurrent.TimeUnit
 
 class ConfirmPurchaseActivity : AppCompatActivity() {
+    private lateinit var cartDetails: List<CartItemDetail>
+    private lateinit var cartToken: String
 
     private val CAMERA_PERMISSION_CODE = 100
     private val TAG = "ConfirmPurchaseActivity"
@@ -42,7 +44,7 @@ class ConfirmPurchaseActivity : AppCompatActivity() {
 
             val totalString = intent.getStringExtra("total") ?: "Total: Q0.00"
             totalAmount = extractNumericValue(totalString)
-            Log.d(TAG, "Total recibido: $totalString, Valor numérico: $totalAmount")
+            cartToken = intent.getStringExtra("cart_token") ?: ""
             findViewById<TextView>(R.id.text_total).text = "Total: Q${String.format("%.2f", totalAmount)}"
 
 
@@ -65,6 +67,12 @@ class ConfirmPurchaseActivity : AppCompatActivity() {
             Toast.makeText(this, "Error al cargar la página de confirmación", Toast.LENGTH_LONG).show()
             finish()
         }
+        @Suppress("UNCHECKED_CAST")
+        cartDetails = intent.getSerializableExtra("cart_details") as? ArrayList<CartItemDetail> ?: emptyList()
+        cartToken = intent.getStringExtra("cart_token") ?: ""
+
+        Log.d(TAG, "Token recibido en ConfirmPurchaseActivity: $cartToken")
+
     }
 
     private fun extractNumericValue(totalString: String): Double {
@@ -189,9 +197,11 @@ class ConfirmPurchaseActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Int>, response: Response<Int>) {
                 showLoading(false)
                 if (response.isSuccessful && response.body() == 1) {
-                    Toast.makeText(this@ConfirmPurchaseActivity, "Compra confirmada", Toast.LENGTH_SHORT).show()
-                    finish()
+//                    Toast.makeText(this@ConfirmPurchaseActivity, "Compra confirmada", Toast.LENGTH_SHORT).show()
+//                    finish()
+                    saveCompra()
                 } else {
+                    showLoading(false)
                     Toast.makeText(this@ConfirmPurchaseActivity, "Compra rechazada", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -202,6 +212,68 @@ class ConfirmPurchaseActivity : AppCompatActivity() {
                 Log.e(TAG, "Error en la solicitud de API", t)
             }
         })
+    }
+
+    private fun saveCompra() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://papergeometry.site/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(PaperGeometryApiService::class.java)
+        val request = createCompraRequest()
+
+        Log.d(TAG, "Enviando solicitud a la API: $request")
+        Log.d(TAG, "Token enviado en la solicitud: ${request.token}")
+
+        service.registrarCompra(request).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                showLoading(false)
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse?.success == true) {
+                        Toast.makeText(this@ConfirmPurchaseActivity, "Compra confirmada y guardada", Toast.LENGTH_SHORT).show()
+                        finish()
+                    } else {
+                        val errorMessage = apiResponse?.message ?: "Mensaje de error no disponible"
+                        Toast.makeText(this@ConfirmPurchaseActivity, "Error al guardar la compra: $errorMessage", Toast.LENGTH_LONG).show()
+                        Log.e(TAG, "Error al guardar la compra: $errorMessage")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Toast.makeText(this@ConfirmPurchaseActivity, "Error en la respuesta del servidor", Toast.LENGTH_LONG).show()
+                    Log.e(TAG, "Error en la respuesta del servidor. Código: ${response.code()}, Cuerpo: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                showLoading(false)
+                Toast.makeText(this@ConfirmPurchaseActivity, "Error al guardar", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Error al guardar", t)
+            }
+        })
+    }
+
+    private fun createCompraRequest(): CompraRequest {
+        return CompraRequest(
+            correo = findViewById<TextInputEditText>(R.id.edit_text_correo).text.toString(),
+            nombres = findViewById<TextInputEditText>(R.id.edit_text_nombre).text.toString(),
+            apellidos = findViewById<TextInputEditText>(R.id.edit_text_apellidos).text.toString(),
+            telefono = findViewById<TextInputEditText>(R.id.edit_text_telefono).text.toString(),
+            token = cartToken,
+            total = totalAmount,
+            detalles = getCartDetails()
+        )
+    }
+
+    private fun getCartDetails(): List<PedidoDetalle> {
+        return cartDetails.map { item ->
+            PedidoDetalle(
+                idProducto = item.idProducto,
+                cantidad = item.cantidad,
+                subTotal = item.subTotal
+            )
+        }
     }
 
     private fun showLoading(show: Boolean) {
@@ -222,6 +294,28 @@ data class PurchaseRequest(
     val empresa: String
 )
 
-//data class PurchaseResponse(
-  //  val result: Int
-//)
+interface PaperGeometryApiService {
+    @POST("api/registrar-compra")
+    fun registrarCompra(@Body request: CompraRequest): Call<ApiResponse>
+}
+
+data class CompraRequest(
+    val correo: String,
+    val nombres: String,
+    val apellidos: String,
+    val telefono: String,
+    val token: String,
+    val total: Double,
+    val detalles: List<PedidoDetalle>
+)
+
+data class PedidoDetalle(
+    val idProducto: Int,
+    val cantidad: Int,
+    val subTotal: Double
+)
+
+data class ApiResponse(
+    val success: Boolean,
+    val message: String
+)

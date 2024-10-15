@@ -20,6 +20,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.Serializable
 
 class CartActivity : AppCompatActivity() {
 
@@ -151,5 +152,32 @@ class CartActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("cart_token", null)
     }
+
+    private fun confirmPurchase() {
+        val intent = Intent(this, ConfirmPurchaseActivity::class.java)
+        val token = getToken() ?: ""
+        intent.putExtra("total", totalTextView.text.toString())
+        intent.putExtra("cart_token", token)
+
+        // Convertir los detalles del carrito a un formato serializable
+        val cartDetails = cartItems.map { item ->
+            CartItemDetail(
+                idProducto = item.producto.idProducto,
+                cantidad = item.cantidad,
+                subTotal = item.subtotal
+            )
+        }
+        intent.putExtra("cart_details", ArrayList(cartDetails))
+        Log.d(TAG, "Token enviado a ConfirmPurchaseActivity: $token")
+        startActivity(intent)
+    }
 }
+
+data class CartItemDetail(
+    val idProducto: Int,
+    val cantidad: Int,
+    val subTotal: Double
+) : Serializable
+
+
 
