@@ -25,6 +25,7 @@ import java.io.Serializable
 class CartActivity : AppCompatActivity() {
 
     private val TAG = "CartActivity"
+    private lateinit var token: String
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var totalTextView: TextView
@@ -41,7 +42,7 @@ class CartActivity : AppCompatActivity() {
         totalTextView = findViewById(R.id.text_total)
         confirmButton = findViewById(R.id.button_confirm_purchase)
 
-        val token = getToken() ?: ""
+        token = getToken() ?: ""
         cartAdapter = CartAdapter(cartItems, token, ::updateTotal, ::removeItem)
         recyclerView.adapter = cartAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -53,12 +54,23 @@ class CartActivity : AppCompatActivity() {
         confirmButton.setOnClickListener {
             val intent = Intent(this, ConfirmPurchaseActivity::class.java)
             intent.putExtra("total", totalTextView.text.toString())
+            intent.putExtra("cart_token", token)
+
+            val cartDetails = cartItems.map { item ->
+                CartItemDetail(
+                    idProducto = item.producto.idProducto,
+                    cantidad = item.cantidad,
+                    subTotal = item.subtotal
+                )
+            }
+            intent.putExtra("cart_details", ArrayList(cartDetails))
+
             startActivity(intent)
         }
     }
 
     private fun loadCartItems() {
-        val token = getToken() ?: ""
+//        token = getToken() ?: ""
         if (token.isEmpty()) {
             Toast.makeText(this, "No se encontró el token", Toast.LENGTH_SHORT).show()
             return
@@ -76,7 +88,6 @@ class CartActivity : AppCompatActivity() {
             override fun onResponse(call: Call<CartResponse>, response: Response<CartResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     // Imprimir la respuesta completa para depurar
-                    Log.d(TAG, "Respuesta de la API: ${response.body()}")
 
                     val items = response.body()?.carrito ?: emptyList()
 
@@ -85,7 +96,6 @@ class CartActivity : AppCompatActivity() {
                     } else {
                         cartItems.clear()
                         cartItems.addAll(items)
-                        Log.d(TAG, "Items agregados al carrito: $cartItems")
                         cartAdapter.notifyDataSetChanged()
                         updateTotal()
                     }
@@ -112,7 +122,7 @@ class CartActivity : AppCompatActivity() {
     private fun removeItem(position: Int) {
         val itemToRemove = cartItems[position]
         val idCarrito = itemToRemove.idCarrito
-        val token = getToken() ?: ""
+        //val token = getToken() ?: ""
 
         if (token.isEmpty()) {
             Toast.makeText(this, "No se encontró el token", Toast.LENGTH_SHORT).show()
@@ -153,24 +163,6 @@ class CartActivity : AppCompatActivity() {
         return sharedPreferences.getString("cart_token", null)
     }
 
-    private fun confirmPurchase() {
-        val intent = Intent(this, ConfirmPurchaseActivity::class.java)
-        val token = getToken() ?: ""
-        intent.putExtra("total", totalTextView.text.toString())
-        intent.putExtra("cart_token", token)
-
-        // Convertir los detalles del carrito a un formato serializable
-        val cartDetails = cartItems.map { item ->
-            CartItemDetail(
-                idProducto = item.producto.idProducto,
-                cantidad = item.cantidad,
-                subTotal = item.subtotal
-            )
-        }
-        intent.putExtra("cart_details", ArrayList(cartDetails))
-        Log.d(TAG, "Token enviado a ConfirmPurchaseActivity: $token")
-        startActivity(intent)
-    }
 }
 
 data class CartItemDetail(
