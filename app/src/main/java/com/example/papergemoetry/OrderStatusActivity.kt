@@ -1,10 +1,12 @@
 package com.example.papergemoetry
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.pusher.client.Pusher
 import com.pusher.client.PusherOptions
 import com.pusher.client.channel.Channel
@@ -104,17 +106,22 @@ class OrderStatusActivity : AppCompatActivity() {
     }
 
     private fun updateUI(status: String) {
-        val (statusText, progress) = when (status) {
-            "Recibido" -> Pair("Recibido", 20)
-            "Imprimiendo" -> Pair("Imprimiendo", 40)
-            "Recortando" -> Pair("Recortando", 60)
-            "Armando" -> Pair("Armando", 80)
-            "Finalizado" -> Pair("Finalizado", 100)
-            else -> Pair("Desconocido", 0)
+        val (statusText, progress, color) = when (status) {
+            "Recibido" -> Triple("Recibido", 20, R.color.red) // Estado inicial en rojo
+            "Imprimiendo" -> Triple("Imprimiendo", 40, R.color.orange)
+            "Recortando" -> Triple("Recortando", 60, R.color.yellow)
+            "Armando" -> Triple("Armando", 80, R.color.light_green)
+            "Finalizado" -> Triple("Finalizado", 100, R.color.green) // Estado final en verde
+            else -> Triple("Desconocido", 0, R.color.gray) // Color por defecto
         }
 
         statusTextView.text = statusText
         progressBar.progress = progress
+
+        // Cambiar el color de la barra de progreso
+        progressBar.progressTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(this, color)
+        )
     }
 }
 

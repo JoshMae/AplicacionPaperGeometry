@@ -22,4 +22,16 @@
     <color name="text_secondary">#757575</color>
     <color name="price_color">#D9A711</color>
     <color name="rating_color">#FFC107</color>
+
+    <color name="red">#FF0000</color>
+    <color name="orange">#FFA500</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="light_green">#90EE90</color>
+    <color name="green">#008000</color>
+    <color name="gray">#A9A9A9</color>
+
+    <color name="purple_lilac">#D8BFD8</color>
+    <color name="text_color_primary">#1C0024</color>
+    <color name="text_color_secondary">#045266</color>
+    <color name="background_gray">#F0F0F0</color>
 </resources>

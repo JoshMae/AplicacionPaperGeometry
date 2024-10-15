@@ -1,0 +1,8 @@
+<!-- progress_color_states.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:maxLevel="20" android:drawable="@color/red" />
+    <item android:maxLevel="40" android:drawable="@color/orange" />
+    <item android:maxLevel="60" android:drawable="@color/yellow" />
+    <item android:maxLevel="80" android:drawable="@color/light_green" />
+    <item android:maxLevel="100" android:drawable="@color/green" />
+</selector>
