@@ -189,16 +189,10 @@ class ConfirmPurchaseActivity : AppCompatActivity() {
             empresa = "Pruebas"
         )
 
-        // Log the request details
-        Log.d(TAG, "Enviando solicitud POST: cuenta=${request.cuenta}, terminal=${request.terminal}, valor=${request.valor}, empresa=${request.empresa}")
-
-
         service.confirmPurchase(request).enqueue(object : Callback<Int> {
             override fun onResponse(call: Call<Int>, response: Response<Int>) {
                 showLoading(false)
                 if (response.isSuccessful && response.body() == 1) {
-//                    Toast.makeText(this@ConfirmPurchaseActivity, "Compra confirmada", Toast.LENGTH_SHORT).show()
-//                    finish()
                     saveCompra()
                 } else {
                     showLoading(false)
@@ -223,20 +217,25 @@ class ConfirmPurchaseActivity : AppCompatActivity() {
         val service = retrofit.create(PaperGeometryApiService::class.java)
         val request = createCompraRequest()
 
-        Log.d(TAG, "Enviando solicitud a la API: $request")
-        Log.d(TAG, "Token enviado en la solicitud: ${request.token}")
-
         service.registrarCompra(request).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 showLoading(false)
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     if (apiResponse?.success == true) {
-                        Toast.makeText(this@ConfirmPurchaseActivity, "Compra confirmada y guardada", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ConfirmPurchaseActivity, "Compra Exitosa", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(this@ConfirmPurchaseActivity, OrderStatusActivity::class.java).apply {
+                            putExtra("cart_token", cartToken)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        Log.d("ConfirmPurchaseActivity", "Iniciando OrderStatusActivity con cartToken: $cartToken")
+                        startActivity(intent)
+
                         finish()
                     } else {
                         val errorMessage = apiResponse?.message ?: "Mensaje de error no disponible"
-                        Toast.makeText(this@ConfirmPurchaseActivity, "Error al guardar la compra: $errorMessage", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ConfirmPurchaseActivity, "Error al realizar la compra: $errorMessage", Toast.LENGTH_LONG).show()
                         Log.e(TAG, "Error al guardar la compra: $errorMessage")
                     }
                 } else {

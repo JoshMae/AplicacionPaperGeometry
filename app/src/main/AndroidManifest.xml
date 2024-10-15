@@ -34,6 +34,7 @@
         <activity android:name=".CharacterDetailActivity" />
         <activity android:name=".CartActivity" />
         <activity android:name=".ConfirmPurchaseActivity" />
+        <activity android:name=".OrderStatusActivity" android:exported="false" />
 
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
