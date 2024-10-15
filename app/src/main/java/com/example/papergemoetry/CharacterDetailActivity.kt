@@ -33,7 +33,7 @@ class CharacterDetailActivity : AppCompatActivity(), NavigationView.OnNavigation
     private var cartToken: String? = null
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("http://papergeometry.online/api/")
+        .baseUrl("https://papergeometry.site/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

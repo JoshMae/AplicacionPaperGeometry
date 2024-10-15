@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     // Variables para contenido Catalogo
     private val retrofit = Retrofit.Builder()
-        .baseUrl("http://papergeometry.online")
+        .baseUrl("https://papergeometry.site")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun fetchCartToken() {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://papergeometry.online")
+            .baseUrl("https://papergeometry.site")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

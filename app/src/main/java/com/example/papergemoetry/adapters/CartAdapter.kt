@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -36,8 +37,8 @@ class CartAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = cartItems[position]
         holder.nameTextView.text = item.producto.nombreP
-        holder.priceTextView.text = "Precio: $${item.producto.precio}"
-        holder.subtotalTextView.text = "Subtotal: $${item.subtotal}"
+        holder.priceTextView.text = "Precio: Q${item.producto.precio}"
+        holder.subtotalTextView.text = "Subtotal: Q${item.subtotal}"
         holder.quantityTextView.text = item.cantidad.toString()
 
         Glide.with(holder.itemView.context)
@@ -63,7 +64,7 @@ class CartAdapter(
 
     private fun updateItemQuantity(idCarrito: Int, nuevaCantidad: Int, position: Int) {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://papergeometry.online")
+            .baseUrl("https://papergeometry.site")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -88,7 +89,7 @@ class CartAdapter(
 
     private fun loadCartItems() {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://papergeometry.online")
+            .baseUrl("https://papergeometry.site")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -124,8 +125,8 @@ class CartAdapter(
         val priceTextView: TextView = view.findViewById(R.id.text_product_price)
         val subtotalTextView: TextView = view.findViewById(R.id.text_product_subtotal)
         val quantityTextView: TextView = view.findViewById(R.id.text_product_quantity)
-        val increaseButton: Button = view.findViewById(R.id.button_increase_quantity)
-        val decreaseButton: Button = view.findViewById(R.id.button_decrease_quantity)
-        val removeImageView: ImageView = view.findViewById(R.id.image_remove_product)
+        val increaseButton: ImageButton = view.findViewById(R.id.button_increase_quantity)
+        val decreaseButton: ImageButton = view.findViewById(R.id.button_decrease_quantity)
+        val removeImageView: ImageView = view.findViewById(R.id.button_remove_product)
     }
 }

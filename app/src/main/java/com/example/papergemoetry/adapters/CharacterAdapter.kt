@@ -32,6 +32,7 @@ class CharacterAdapter(
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
         val character = characters[position]
         holder.nameTextView.text = character.nombre
+        holder.text_price.text= "Q. "+character.precio
         Picasso.get().load(character.foto).into(holder.imageView)
 
         holder.itemView.setOnClickListener {
@@ -47,7 +48,7 @@ class CharacterAdapter(
 
     private fun addToCart(idProducto: Int, context: Context) {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://papergeometry.online")
+            .baseUrl("https://papergeometry.site")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -81,6 +82,7 @@ class CharacterAdapter(
     class CharacterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.image_character)
         val nameTextView: TextView = itemView.findViewById(R.id.text_name)
+        val text_price: TextView= itemView.findViewById(R.id.text_price)
         val addToCartButton: Button = itemView.findViewById(R.id.button_add_to_cart)
     }
 }
