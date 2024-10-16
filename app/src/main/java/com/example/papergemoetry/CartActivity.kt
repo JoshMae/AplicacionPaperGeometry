@@ -116,7 +116,7 @@ class CartActivity : AppCompatActivity() {
 
     private fun updateTotal() {
         val total = cartItems.sumOf { it.subtotal }
-        totalTextView.text = "Total: $${"%.2f".format(total)}"
+        totalTextView.text = "Total: Q ${"%.2f".format(total)}"
     }
 
     private fun removeItem(position: Int) {
