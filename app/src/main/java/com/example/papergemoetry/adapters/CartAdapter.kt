@@ -11,8 +11,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.JosherDev22.papergemoetry.R
 import com.bumptech.glide.Glide
-import com.example.papergemoetry.R
 import com.example.papergemoetry.network.CartItem
 import com.example.papergemoetry.network.CartResponse
 import com.example.papergemoetry.network.RickAndMortyApi

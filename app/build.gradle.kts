@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.papergemoetry"
+    namespace = "com.JosherDev22.papergemoetry"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.papergemoetry"
+        applicationId = "com.JosherDev22.papergemoetry"
         minSdk = 28
         targetSdk = 34
         versionCode = 1

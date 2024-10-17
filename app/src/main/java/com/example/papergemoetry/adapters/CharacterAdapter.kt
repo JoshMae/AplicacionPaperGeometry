@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.papergemoetry.R
+import com.JosherDev22.papergemoetry.R
 import com.example.papergemoetry.models.Character
 import com.example.papergemoetry.network.RickAndMortyApi
 import com.squareup.picasso.Picasso

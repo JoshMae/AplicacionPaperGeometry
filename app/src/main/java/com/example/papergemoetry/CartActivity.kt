@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.JosherDev22.papergemoetry.R
 import com.example.papergemoetry.adapters.CartAdapter
 import com.example.papergemoetry.network.CartItem
 import com.example.papergemoetry.network.CartResponse

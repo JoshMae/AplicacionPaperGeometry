@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.JosherDev22.papergemoetry.R
 import com.example.papergemoetry.adapters.CategoryAdapter
 import com.example.papergemoetry.adapters.CharacterAdapter
 import com.example.papergemoetry.network.CharacterResponse
