@@ -33,6 +33,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.papergemoetry.models.Character
 import com.example.papergemoetry.network.CartTokenResponse
+import com.example.papergemoetry.network.OrderCheckService
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -97,6 +98,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun fetchCartToken() {
+        val existingToken = getToken()
+        if (!existingToken.isNullOrEmpty()) {
+            Log.d(TAG, "Using existing token: $existingToken")
+            cartToken = existingToken
+            return
+        }
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://papergeometry.site")
             .addConverterFactory(GsonConverterFactory.create())
@@ -150,7 +158,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fetchCharacters()
             }
             R.id.item_three -> {
-                findViewById<LinearLayout>(R.id.search_container).visibility = View.GONE
+                //findViewById<LinearLayout>(R.id.search_container).visibility = View.GONE
+                checkActiveOrder()
             }
         }
         drawer.closeDrawer(GravityCompat.START)
@@ -193,7 +202,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun setupRecyclerView(characters: List<Character>) {
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         val gridLayoutManager = GridLayoutManager(this, 2) // Número de columnas en la cuadrícula
-        recyclerView.layoutManager = gridLayoutManager
+           recyclerView.layoutManager = gridLayoutManager
 
         val token = getToken() ?: ""
 
@@ -203,6 +212,52 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent.putExtra("character", character)
             startActivity(intent)
         }, token)
+    }
+
+    private fun checkActiveOrder() {
+        val token = getToken() ?: ""
+        Log.e(TAG,"Token de Pedido: $token")
+        if (token == null) {
+            Toast.makeText(this, "Error: No se encontró un token válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://papergeometry.site/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(OrderCheckService::class.java)
+        val request = OrderStatusRequest(token)
+
+        service.checkOrderStatus(request).enqueue(object : retrofit2.Callback<OrderStatusResponse> {
+            override fun onResponse(
+                call: Call<OrderStatusResponse>,
+                response: retrofit2.Response<OrderStatusResponse>
+            ) {
+                if (response.isSuccessful && response.body() != null) {
+                    // Si hay un pedido activo, abre OrderStatusActivity
+                    val intent = Intent(this@MainActivity, OrderStatusActivity::class.java)
+                    intent.putExtra("cart_token", token)
+                    startActivity(intent)
+                } else {
+                    // Si no hay pedido activo
+                    Toast.makeText(
+                        this@MainActivity,
+                        "No tienes pedidos pendientes",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<OrderStatusResponse>, t: Throwable) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Error al verificar el estado del pedido: ${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

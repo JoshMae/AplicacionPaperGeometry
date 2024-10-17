@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -65,6 +66,12 @@ class CartActivity : AppCompatActivity() {
             }
             intent.putExtra("cart_details", ArrayList(cartDetails))
 
+            startActivity(intent)
+        }
+
+        findViewById<ImageButton>(R.id.button_home).setOnClickListener {
+            // Abre la actividad del carrito
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
     }

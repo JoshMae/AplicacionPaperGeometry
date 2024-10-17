@@ -1,9 +1,11 @@
 package com.example.papergemoetry
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -57,6 +59,12 @@ class OrderStatusActivity : AppCompatActivity() {
             Log.e("OrderStatusActivity", "Token no proporcionado")
             finish()
         }
+
+        findViewById<ImageButton>(R.id.button_home).setOnClickListener {
+            // Abre la actividad del carrito
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun getOrderStatus(token: String) {
@@ -74,7 +82,14 @@ class OrderStatusActivity : AppCompatActivity() {
                     val orderStatus = response.body()
                     orderStatus?.let {
                         orderId = it.idPedido
-                        updateUI("Recibido")
+                        var orderEstado= ""
+                        if(it.idestado_pedido==1){ orderEstado= "Recibido" }
+                        else if(it.idestado_pedido==2){ orderEstado= "Imprimiendo" }
+                        else if(it.idestado_pedido==3){ orderEstado= "Recortando" }
+                        else if(it.idestado_pedido==4){ orderEstado= "Armando" }
+                        else if(it.idestado_pedido==5){ orderEstado= "Finalizado" }
+
+                        updateUI(orderEstado)
                         getOrderDetails(orderId)
                     }
                 } else {

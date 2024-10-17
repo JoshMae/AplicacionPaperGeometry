@@ -1,9 +1,12 @@
 
 package com.example.papergemoetry.network
 
+import com.example.papergemoetry.OrderStatusRequest
+import com.example.papergemoetry.OrderStatusResponse
 import com.example.papergemoetry.models.Character
 
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -48,6 +51,11 @@ interface RickAndMortyApi {
         @Header("Cart-Token") cartToken: String,
         @Path("idCarrito") idCarrito: Int
     ): Call<Void>
+}
+
+interface OrderCheckService {
+    @POST("api/pedido/token")
+    fun checkOrderStatus(@Body request: OrderStatusRequest): Call<OrderStatusResponse>
 }
 
 data class CartTokenResponse(
