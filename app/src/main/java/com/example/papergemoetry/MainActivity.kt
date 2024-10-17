@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -24,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.papergemoetry.adapters.CategoryAdapter
 import com.example.papergemoetry.adapters.CharacterAdapter
 import com.example.papergemoetry.network.CharacterResponse
 import com.example.papergemoetry.network.RickAndMortyApi
@@ -33,7 +35,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.papergemoetry.models.Character
 import com.example.papergemoetry.network.CartTokenResponse
+import com.example.papergemoetry.network.Category
 import com.example.papergemoetry.network.OrderCheckService
+import com.squareup.picasso.Picasso
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -44,6 +48,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private var cartToken: String? = null
 
+    private var regreso= 1;
     // Variables para contenido Catalogo
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://papergeometry.site")
@@ -51,6 +56,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         .build()
 
     private val service = retrofit.create(RickAndMortyApi::class.java)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +69,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
         toggle.syncState()
+
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -87,14 +94,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 filterCharacters(s.toString())
             }
         })
+        val buttonBack: ImageButton = findViewById(R.id.button_back)
+        buttonBack.setOnClickListener {
+            if(regreso==1){
+                showCategories()
+                showProductList()
+            }
+            else if(regreso==2){
+                fetchCharacters()
+                showProductList()
+            }
+
+        }
 
         findViewById<ImageButton>(R.id.button_cart).setOnClickListener {
-            // Abre la actividad del carrito
             val intent = Intent(this, CartActivity::class.java)
             startActivity(intent)
         }
 
-        fetchCharactersBySpecies("Mario")
+        showCategories()
+
     }
 
     private fun fetchCartToken() {
@@ -150,20 +169,53 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.item_one -> {
-                findViewById<LinearLayout>(R.id.search_container).visibility = View.GONE
-                fetchCharactersBySpecies("Mario")
+                regreso=1
+                findViewById<ImageView>(R.id.header_image).visibility = View.VISIBLE
+                findViewById<View>(R.id.search_container).visibility = View.GONE
+                showCategories()
+                showProductList()
             }
             R.id.item_two -> {
-                findViewById<LinearLayout>(R.id.search_container).visibility = View.VISIBLE
+                regreso=2
+                findViewById<ImageView>(R.id.header_image).visibility = View.GONE
+                findViewById<View>(R.id.search_container).visibility = View.VISIBLE
                 fetchCharacters()
+                showProductList()
             }
             R.id.item_three -> {
-                //findViewById<LinearLayout>(R.id.search_container).visibility = View.GONE
                 checkActiveOrder()
             }
         }
         drawer.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun showCategories() {
+        findViewById<ImageView>(R.id.header_image).visibility = View.VISIBLE
+        findViewById<View>(R.id.search_container).visibility = View.GONE
+
+        service.getCategories().enqueue(object : retrofit2.Callback<List<Category>> {
+            override fun onResponse(call: Call<List<Category>>, response: retrofit2.Response<List<Category>>) {
+                if (response.isSuccessful) {
+                    val categories = response.body() ?: emptyList()
+                    setupCategoryGrid(categories)
+                }
+            }
+
+            override fun onFailure(call: Call<List<Category>>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
+    private fun setupCategoryGrid(categories: List<Category>) {
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
+        recyclerView.adapter = CategoryAdapter(categories) { category ->
+            fetchCharactersBySpecies(category.categoria)
+            findViewById<ImageButton>(R.id.button_back).visibility = View.VISIBLE
+        }
     }
 
     private fun fetchCharactersBySpecies(categoria: String) {
@@ -207,11 +259,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val token = getToken() ?: ""
 
         recyclerView.adapter = CharacterAdapter(characters, { character ->
-            // Aquí se maneja el clic en un personaje
-            val intent = Intent(this, CharacterDetailActivity::class.java)
-            intent.putExtra("character", character)
-            startActivity(intent)
+            showProductDetails(character)
         }, token)
+    }
+
+    private fun showProductDetails(character: Character) {
+        findViewById<RecyclerView>(R.id.recycler_view).visibility = View.GONE
+        findViewById<View>(R.id.product_detail_container).visibility = View.VISIBLE
+        findViewById<ImageButton>(R.id.button_back).visibility = View.VISIBLE
+        findViewById<ImageView>(R.id.header_image).visibility = View.GONE
+        findViewById<View>(R.id.search_container).visibility = View.GONE
+
+        // Poblar los detalles del producto
+        val productImage: ImageView = findViewById(R.id.product_image)
+        val productName: TextView = findViewById(R.id.product_name)
+        val productPrice: TextView = findViewById(R.id.product_price)
+        val productCategory: TextView = findViewById(R.id.product_category)
+        val productDetails: TextView = findViewById(R.id.product_details)
+        val addToCartButton: Button = findViewById(R.id.add_to_cart_button)
+
+        Picasso.get().load(character.foto).into(productImage)
+        productName.text = character.nombre
+        productPrice.text = "Precio: ${character.precio}"
+        productCategory.text = "Categoría: ${character.categoria}"
+        productDetails.text = "Detalles: ${character.detalle}"
+
+        addToCartButton.setOnClickListener {
+            addToCart(character.idProducto)
+        }
+    }
+
+    private fun showProductList() {
+        findViewById<RecyclerView>(R.id.recycler_view).visibility = View.VISIBLE
+        findViewById<View>(R.id.product_detail_container).visibility = View.GONE
+        findViewById<ImageButton>(R.id.button_back).visibility = View.GONE
+    }
+
+    private fun addToCart(idProducto: Int) {
+        val token = cartToken ?: ""
+        val call = service.addToCart(token, idProducto, 1)
+        call.enqueue(object : retrofit2.Callback<Unit> {
+            override fun onResponse(call: Call<Unit>, response: retrofit2.Response<Unit>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@MainActivity, "Producto agregado al carrito", Toast.LENGTH_SHORT).show()
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "No se proporcionaron detalles del error"
+                    Toast.makeText(this@MainActivity, errorBody, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun checkActiveOrder() {
@@ -258,6 +358,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 ).show()
             }
         })
+    }
+
+    override fun onBackPressed() {
+        when {
+            findViewById<View>(R.id.product_detail_container).visibility == View.VISIBLE -> showProductList()
+            drawer.isDrawerOpen(GravityCompat.START) -> drawer.closeDrawer(GravityCompat.START)
+            else -> super.onBackPressed()
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

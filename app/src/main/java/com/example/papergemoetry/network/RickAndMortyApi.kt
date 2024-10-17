@@ -51,12 +51,21 @@ interface RickAndMortyApi {
         @Header("Cart-Token") cartToken: String,
         @Path("idCarrito") idCarrito: Int
     ): Call<Void>
+
+    @GET("/api/categoria")
+    fun getCategories(): Call<List<Category>>
 }
 
 interface OrderCheckService {
     @POST("api/pedido/token")
     fun checkOrderStatus(@Body request: OrderStatusRequest): Call<OrderStatusResponse>
 }
+
+data class Category(
+    val idCategoria: Int,
+    val categoria: String,
+    val estado: Int
+)
 
 data class CartTokenResponse(
     val cart_token: String
