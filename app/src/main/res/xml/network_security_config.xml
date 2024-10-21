@@ -4,6 +4,6 @@
         <domain includeSubdomains="true">papergeometry.online</domain>
     </domain-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">desarrollowebumg.somee.com</domain>
+        <domain includeSubdomains="true">bancoUmgR.somee.com</domain>
     </domain-config>
 </network-security-config>

@@ -1,8 +1,8 @@
 
 package com.example.papergemoetry.network
 
-import com.example.papergemoetry.OrderStatusRequest
-import com.example.papergemoetry.OrderStatusResponse
+import com.JosherDev22.papergemoetry.OrderStatusRequest
+import com.JosherDev22.papergemoetry.OrderStatusResponse
 import com.example.papergemoetry.models.Character
 
 import retrofit2.Call

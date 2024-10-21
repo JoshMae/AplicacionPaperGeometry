@@ -1,4 +1,4 @@
-package com.example.papergemoetry
+package com.JosherDev22.papergemoetry
 
 import android.content.Intent
 import android.os.Bundle

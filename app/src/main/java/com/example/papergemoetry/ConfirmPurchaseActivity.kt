@@ -1,4 +1,4 @@
-package com.example.papergemoetry
+package com.JosherDev22.papergemoetry
 
 import android.Manifest
 import android.content.Intent
